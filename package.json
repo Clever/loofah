@@ -16,14 +16,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/Clever/somthingelse.git"
+    "url": "git://github.com/Clever/loofah.git"
   },
   "keywords": [
-    "scrub",
+    "scrub"
   ],
   "license": "BSD",
   "bugs": {
-    "url": "https://github.com/Clever/somethingelse/issues"
+    "url": "https://github.com/Clever/loofah/issues"
   },
   "dependencies": {
     "underscore": "~1.5.2",
