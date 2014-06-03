@@ -2,7 +2,7 @@ _ = require 'underscore'
 assert = require 'assert'
 os = require 'os'
 
-Scrubbers = require ("#{__dirname}/../lib/scrub")
+Scrubbers = require ("#{__dirname}/../lib/loofah")
 user_scrub = require("#{__dirname}/lib/user_scrubber")
 
 describe 'sentry-node', ->
