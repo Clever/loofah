@@ -31,8 +31,6 @@ Scrubbers =
       obj = _.deepToFlat object
       _.each (_.pairs obj), ([key, val]) ->
         _.each query_params, (qparam) ->
-          # info can be encoded in the url in the form
-          # <key>=<value> with . & ? field delimiters
           qparam = new RegExp "#{qparam}=", 'i'
           delimiters = new RegExp '[.&?]'
           while (start = val.search qparam) != -1
@@ -48,7 +46,6 @@ Scrubbers =
       obj = _.deepToFlat object
       _.each (_.pairs obj), ([key, val]) ->
         _.each keywords, (keyword) ->
-          # Redact info in plain text
           delims = " ="
           delimiters = new RegExp "[#{delims}]"
           non_delimiters = new RegExp "[^#{delims}]"
