@@ -1,0 +1,37 @@
+{
+  "name": "scrub",
+  "version": "0.0.1",
+  "description": "Removes information from objects before publishing",
+  "engines": {
+    "node": ">=0.10.x"
+  },
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "make -Br test",
+    "test-cov": "make -Br test-cov",
+    "prepublish": "make build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/Clever/somthingelse.git"
+  },
+  "keywords": [
+    "scrub",
+  ],
+  "license": "BSD",
+  "bugs": {
+    "url": "https://github.com/Clever/somethingelse/issues"
+  },
+  "dependencies": {
+    "underscore": "~1.5.2",
+    "underscore.deep": "~0.2.0",
+    "debug": "~0.7.4"
+  },
+  "devDependencies": {
+    "mocha": "~1.14.0",
+    "coffee-script": "~1.6.3"
+  }
+}
