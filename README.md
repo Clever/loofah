@@ -1,14 +1,14 @@
-## Scrub
+## Loofah
 
 A coffeescript library to scrub sensitive data from objects.
 
 ## Library Functions
 
 ```
-Scrubbers = require 'lib/scrub'
+Scrubbers = require 'lib/loofah'
 ```
 
-The scrub library provides a number of helper functions. Each of these functions take a list of keywords which specify what is to be scrubbed. They each return a function that takes an object. When called, this function operates on a copy of the given object and returns it.
+The loofah library provides a number of helper functions or scrubbers. Each of these functions takes a list of keywords which specify what is to be scrubbed and return a function that takes an object. When called, this function scrubs and returns a copy of this object.
 
 ### bad_keys
 Omits all keys in the object that match a case insensitive regex text with one of keywords. This is designed to remove common keys such as 'password'. You should be careful to choose fairly specific keywords - `'id'` will result in key `'skid'` being omitted.
@@ -42,7 +42,7 @@ _.compose(Scrubbers.bad_keys(['password', 'secret']), Scrubbers.bad_vals(['12345
 ```
 
 ## Defaults
-The scrub library provides a default configuration for each of its functions (except bad_vals which should only be called with application specific values). These defaults are defined in the Scrubber class. You can call with the defaults by providing no arguments, an empty or array, or an argument that is not an array.
+Loofah provides a default configuration for each of its functions (except bad_vals which should only be called with application specific values). These defaults are defined in the `'Scrubbers'` class. You can call using the default configuration by providing no arguments.
 
 ```
 Scrubbers.bad_keys() object
@@ -67,7 +67,7 @@ This will call bad_keys twice; once with the parameters specified in defaults an
 You can easily write your own functions and use them with the provided scrubbers. If you have the following scrubber:
 
 ```
-scrub: (keywords) ->
+myloofah: (keywords) ->
   return (object) ->
     <do something on a copy of object>
     return object
@@ -75,6 +75,6 @@ scrub: (keywords) ->
 You can easily compose it with the provided scrubbers:
 
 ```
-uscrub = require 'user_scrubfile'
-_.compose(Scrubbers.bad_keys(['password', 'secret']), uscrub_scrub(['some', args'])) object
+scrub = require 'user_file'
+_.compose(Scrubbers.bad_keys(['password', 'secret']), scrub.myloofah(['some', args'])) object
 ```
