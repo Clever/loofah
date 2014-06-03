@@ -82,6 +82,16 @@ describe 'sentry-node', ->
 
   it 'has sensible defaults', ->
     object =
+      password: 'pwd!'
+      a: 'boring'
+    expected =
+      a : 'boring'
+    assert.deepEqual (Scrubbers.bad_keys() object), expected
+    assert.deepEqual (Scrubbers.bad_keys('not array') object), expected
+    assert.deepEqual (Scrubbers.bad_keys([]) object), expected
+
+  it 'allows default composition', ->
+    object =
       password: 'pwd'
       url: 'refresh_token=1234512345a&client_id=someid&client_secret=somethingelse'
       string: 'username = 12345@example.com'

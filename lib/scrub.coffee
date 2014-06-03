@@ -1,14 +1,18 @@
 _ = require 'underscore'
 _.mixin require 'underscore.deep'
 
-Scrubbers =
-  default: ->
-    bk = Scrubbers.bad_keys(['password', 'params'])
-    ue = Scrubbers.url_encode(['client_id', 'client_secret', 'refresh_token'])
-    pt = Scrubbers.plain_text(['username'])
+class Scrubbers
+  bk_def = ['password', 'user', 'email', 'api', 'secret']
+  ue_def = ['client_id', 'client_secret', 'refresh_token']
+  pt_def = ['user', 'password', 'email']
+
+  @default: =>
+    bk = Scrubbers.bad_keys()
+    ue = Scrubbers.url_encode()
+    pt = Scrubbers.plain_text()
     _.compose(pt, ue, bk)
 
-  bad_vals: (substrings) ->
+  @bad_vals: (substrings) ->
     return (object) =>
       obj = _.deepToFlat object
       _.each (_.pairs obj), ([key, val]) ->
@@ -16,7 +20,8 @@ Scrubbers =
           obj[key] = obj[key].replace substring, '[REDACTED]'
       _.deepFromFlat obj
 
-  bad_keys: (b_keys) ->
+  @bad_keys: (b_keys) ->
+    b_keys = bk_def if not b_keys?[0]? or not _.isArray b_keys
     return (object) =>
       obj = _.deepToFlat object
       _.each (_.keys obj), (key) ->
@@ -26,7 +31,8 @@ Scrubbers =
             obj = _.omit obj, key
       _.deepFromFlat obj
 
-  url_encode: (query_params) ->
+  @url_encode: (query_params) ->
+    query_params = ue_def if not query_params?[0]? or not _.isArray query_params
     return (object) =>
       obj = _.deepToFlat object
       _.each (_.pairs obj), ([key, val]) ->
@@ -41,7 +47,8 @@ Scrubbers =
           obj[key] = val
       _.deepFromFlat obj
 
-  plain_text: (keywords) ->
+  @plain_text: (keywords) ->
+    keywords = pt_def if not keywords?[0]? or not _.isArray keywords
     return (object) =>
       obj = _.deepToFlat object
       _.each (_.pairs obj), ([key, val]) ->
