@@ -42,12 +42,17 @@ _.compose(Scrubbers.bad_keys(['password', 'secret']), Scrubbers.bad_vals(['12345
 ```
 
 ## Defaults
-The scrub library provides a default configuration which can be called using.
+The scrub library provides a default configuration for each of its functions (except bad_vals which should only be called with application specific values). These defaults are defined in the Scrubber class. You can call with the defaults by providing no arguments, an empty or array, or an argument that is not an array.
+
+```
+Scrubbers.bad_keys() object
+```
+
+You can also call all of the library functions (except bad_vals) with their defaults by calling:
 
 ```
 Scrubbers.default() object
 ```
-See the code for the parameters that this uses.
 
 If the defaults are not quite right, you can add extra parameters by composition.
 
@@ -55,7 +60,7 @@ If the defaults are not quite right, you can add extra parameters by composition
 _.compose(Scrubbers.defaults(), Scrubbers.bad_keys(['keys', 'not', 'in', 'defaults'])) object
 ```
 
-If bad_keys is called as part of defaults, this will call it twice; once with the parameters specified in defaults and once with your parameters. There is no way to remove parameters from the defaults other than editing the code.
+This will call bad_keys twice; once with the parameters specified in defaults and once with your parameters. There is no way to remove parameters from the defaults other than editing the code.
 
 
 ## User extensible
