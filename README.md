@@ -8,19 +8,19 @@ A coffeescript library to scrub sensitive data from objects.
 Scrubbers = require 'lib/loofah'
 ```
 
-The loofah library provides a number of helper functions or scrubbers. Each of these functions takes a list of keywords which specify what is to be scrubbed and return a function that takes an object. When called, this function scrubs and returns a copy of this object.
+The loofah library provides a number of helper functions or scrubbers. Each of these functions takes a list of keywords which specifies what is to be scrubbed and returns a function that takes an object. When called, this function scrubs and returns a copy of the object.
 
 ### bad_keys
 Omits all keys in the object that match a case insensitive regex text with one of keywords. This is designed to remove common keys such as 'password'. You should be careful to choose fairly specific keywords - `'id'` will result in key `'skid'` being omitted.
 
 ### bad_vals
-Replaces any substring that exactly matches one of the keywords with `'[REDACTED]'`. This is designed to protect against sharing of known secrets such as API keys, secrets or id.
+Replaces any substring that exactly matches one of the keywords with `'[REDACTED]'`. This is designed to protect against sharing of known secrets such as API keys, secrets or ids.
 
 ### url_encode
 Replaces an url encoded `'<key>=<value>'` pair with `'[REDACTED]'`, where key matches a case insensitive regex test with `"#{keyword}="`. For example `'www.example.com/client_id=12345&password=pwd'` will be changed to `'www.example.com/[REDACTED]&[REDACTED]'` if `client_id` and `password` (or `id` but not `client`) are provided as keywords.
 
 ### plain_text
-Searches through each of the object's values until it finds a case insensitive regex match with one of the keywords. It replaces all text from the start of the match to the second contiguous set of delimiters with `'[REDACTED]'`. E.g. `'userPasswordlist<some number of delims>pwds<delim>'` will be reduced to `'user[REDACTED]<delim>'` if `'password'` is a keyword. As with bad_keys, you should choose specific keywords to prevent accidental matching.
+It replaces all text from the start of a case insensitive regex match with one of the keywords to the second contiguous set of delimiters with `'[REDACTED]'`. E.g. `'userPasswordlist<some number of delims>pwds<delim>'` will be reduced to `'user[REDACTED]<delim>'` if `'password'` is a keyword. As with bad_keys, you should choose specific keywords to prevent accidental matching.
 
 ## Usage
 To remove all keys that include `'password'` or `'secret'` you would call:
@@ -57,7 +57,7 @@ Scrubbers.default() object
 If the defaults are not quite right, you can add extra parameters by composition.
 
 ```
-_.compose(Scrubbers.defaults(), Scrubbers.bad_keys(['keys', 'not', 'in', 'defaults'])) object
+_.compose(Scrubbers.default(), Scrubbers.bad_keys(['keys', 'not', 'in', 'defaults'])) object
 ```
 
 This will call bad_keys twice; once with the parameters specified in defaults and once with your parameters. There is no way to remove parameters from the defaults other than editing the code.
