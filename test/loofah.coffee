@@ -9,16 +9,21 @@ describe 'sentry-node', ->
 
   it 'scrubs keys with banned names', ->
     object =
-      a : 'non sensitive'
-      b :
-        secret : 'shhhh'
-        c : 'non sensitive'
+      a: 'non sensitive'
+      b:
+        secret: 'shhhh'
+        c: 'non sensitive'
         big_Secret: 'SHHHH'
-      passwords :
-        api: 'qwerty'
+      passwords:
+        d: 'qwerty'
     expected =
       a: 'non sensitive'
-      b: c: 'non sensitive'
+      b:
+        secret: '[REDACTED]'
+        c: 'non sensitive'
+        big_Secret: '[REDACTED]'
+      passwords:
+        d: '[REDACTED]'
     assert.deepEqual (Scrubbers.bad_keys(['secret', 'password']) object), expected
 
   it 'scrubs banned values', ->
@@ -35,7 +40,7 @@ describe 'sentry-node', ->
   it 'replaces sensitive url encoded info with [REDACTED]', ->
     object =
       url: 'refresh_token=1234567890asdfghjkl&CliENT_Id=123456789.apps.googleusercontent.com&client_secret=123456789asdfghjkl&grant_type=refresh_token'
-    expected = {url: '[REDACTED]&[REDACTED].apps.googleusercontent.com&[REDACTED]&grant_type=refresh_token'}
+    expected = {url: 'refresh_token=[REDACTED]&CliENT_Id=[REDACTED].apps.googleusercontent.com&client_secret=[REDACTED]&grant_type=refresh_token'}
     assert.deepEqual (Scrubbers.url_encode(['refresh_token', 'client_id', 'client_secret']) object), expected
 
   it 'replaces senstive info in string with [REDACTED]', ->
@@ -71,13 +76,14 @@ describe 'sentry-node', ->
       id: 'number'
       a: 'user'
       b: 'id 123456'
-      c: 'someurl?id=12345&user=name'
+      c: 'someurl?client=12345&user=name'
     expected =
+      user: '[REDACTED]'
       id: 'number'
       a: 'user'
       b: '[REDACTED]'
-      c: 'someurl?[REDACTED]&user=name'
-    scrub = _.compose(Scrubbers.plain_text(['id']), Scrubbers.bad_keys(['user']), Scrubbers.url_encode(['id']),)
+      c: 'someurl?client=[REDACTED]&user=name'
+    scrub = _.compose(Scrubbers.plain_text(['id']), Scrubbers.bad_keys(['user']), Scrubbers.url_encode(['client']),)
     assert.deepEqual (scrub object), expected
 
   it 'has sensible defaults', ->
@@ -85,6 +91,7 @@ describe 'sentry-node', ->
       password: 'pwd!'
       a: 'boring'
     expected =
+      password: '[REDACTED]'
       a : 'boring'
     assert.deepEqual (Scrubbers.bad_keys() object), expected
     assert.deepEqual (Scrubbers.bad_keys('not array') object), expected
@@ -96,7 +103,8 @@ describe 'sentry-node', ->
       url: 'refresh_token=1234512345a&client_id=someid&client_secret=somethingelse'
       string: 'username = 12345@example.com'
     expected =
-      url: '[REDACTED]&[REDACTED]&[REDACTED]'
+      password: '[REDACTED]'
+      url: 'refresh_token=[REDACTED]&client_id=[REDACTED]&client_secret=[REDACTED]'
       string: '[REDACTED]'
     assert.deepEqual (Scrubbers.default() object), expected
 
@@ -107,7 +115,8 @@ describe 'sentry-node', ->
       string: 'username = 12345@example.com'
       omit_this_key: 'some_val'
     expected =
-      url: '[REDACTED]&[REDACTED]&[REDACTED]'
+      password: '[REDACTED]'
+      url: 'refresh_token=[REDACTED]&client_id=[REDACTED]&client_secret=[REDACTED]'
       string: '[REDACTED]'
     scrub = _.compose(Scrubbers.default(), user_scrub.scrub(['some', 'bads']))
     assert.deepEqual (scrub object), expected

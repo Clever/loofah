@@ -28,7 +28,7 @@ class Scrubbers
         _.each b_keys, (b_key) ->
           b_key = new RegExp b_key, 'i'
           if b_key.test key
-            obj = _.omit obj, key
+            obj[key] = '[REDACTED]'
       _.deepFromFlat obj
 
   @url_encode: (query_params) ->
@@ -37,11 +37,11 @@ class Scrubbers
       obj = _.deepToFlat object
       _.each (_.pairs obj), ([key, val]) ->
         _.each query_params, (qparam) ->
-          qparam = new RegExp "#{qparam}=", 'i'
+          reg_qparam = new RegExp "#{qparam}=", 'i'
           delimiters = new RegExp '[.&?]'
-          while (start = val.search qparam) != -1
+          while (start = val.search reg_qparam) != -1 and (val[start + qparam.length + 1..start + qparam.length + 10] isnt '[REDACTED]')
             end = start + val[start..].search delimiters
-            s = if not start then '[REDACTED]' else val[..start - 1] + '[REDACTED]'
+            s = val[..start - 1 + qparam.length + 1] + '[REDACTED]'
             e = if end > start then val[end..] else ''
             val = s + e
           obj[key] = val
@@ -61,6 +61,7 @@ class Scrubbers
             end1 = start + val[start..].search delimiters
             end2 = end1 + val[end1..].search non_delimiters
             end3 = end2 + val[end2..].search delimiters
+            #s = if end2 > end1 and end1 > start then val[..end2] + '[REDACTED]'
             s = if not start then '[REDACTED]' else val[..start - 1] + '[REDACTED]'
             e = if end3 > end2 and end2 > end1 and end1 > start then val[end3..] else ''
             val = s + e
