@@ -6,7 +6,7 @@ class Scrubbers
   ue_def = ['client_id', 'client_secret', 'refresh_token']
   pt_def = ['user', 'password', 'email']
 
-  @default: =>
+  @default: ->
     bk = Scrubbers.bad_keys()
     ue = Scrubbers.url_encode()
     pt = Scrubbers.plain_text()
@@ -27,9 +27,9 @@ class Scrubbers
 
   @bad_keys: (b_keys) ->
     b_keys = bk_def if not b_keys?[0]? or not _.isArray b_keys
-    return (object) =>
+    return (object) ->
       return object if not _.isObject object
-      return obj = _.deepMapValues object, (val, key) =>
+      return obj = _.deepMapValues object, (val, key) ->
         _.each b_keys, (b_key) ->
           b_key = new RegExp b_key, 'i' if not _.isRegExp b_key
           val = if (b_key.test key) then '[REDACTED]' else val

@@ -61,7 +61,7 @@ describe 'Loofah', ->
         url: 'refresh_token=1234567890asdfghjkl&CliENT_Id=123456789.apps.googleusercontent.com&client_secret=123456789asdfghjkl&grant_type=refresh_token'
       expected =
       url: 'refresh_token=[REDACTED]&CliENT_Id=[REDACTED].apps.googleusercontent.com&client_secret=[REDACTED]&grant_type=refresh_token'
-      assert.deepEqual (Scrubbers.url_encode([/client_*/i, 'refresh_token'] object), expected
+      assert.deepEqual (Scrubbers.url_encode([/client_*/i, 'refresh_token']) object), expected
 
     it 'replaces sensitive url encoded info in strings with [REDACTED]', ->
       url = 'refresh_token=1234567890asdfghjkl&CliENT_Id=123456789.apps.googleusercontent.com&client_secret=123456789asdfghjkl&grant_type=refresh_token'
