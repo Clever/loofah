@@ -1,5 +1,5 @@
 _ = require 'underscore'
-_.mixin require 'underscore.deep'
+_.mixin require 'underscore.deep' # the version that works is not on npm
 
 class Scrubbers
   bk_def = ['password', 'user', 'email', 'api', 'secret']
@@ -14,58 +14,71 @@ class Scrubbers
 
   @bad_vals: (substrings) ->
     return (object) =>
-      obj = _.deepToFlat object
-      _.each (_.pairs obj), ([key, val]) ->
-        _.each substrings, (substring) ->
-          obj[key] = obj[key].replace substring, '[REDACTED]'
-      _.deepFromFlat obj
+      return @_bad_vals object, substrings if not _.isObject object
+      return obj = _.deepMapValues object, (val) =>
+        @_bad_vals val, substrings
+
+  @_bad_vals: (string, substrings) ->
+    return string if not _.isString string
+    _.each substrings, (substring) ->
+      substring = new RegExp substring, 'g' if not _.isRegExp substring
+      string = string.replace substring, '[REDACTED]'
+    string
 
   @bad_keys: (b_keys) ->
     b_keys = bk_def if not b_keys?[0]? or not _.isArray b_keys
     return (object) =>
-      obj = _.deepToFlat object
-      _.each (_.keys obj), (key) ->
+      return object if not _.isObject object
+      return obj = _.deepMapValues object, (val, key) =>
         _.each b_keys, (b_key) ->
-          b_key = new RegExp b_key, 'i'
-          if b_key.test key
-            obj[key] = '[REDACTED]'
-      _.deepFromFlat obj
+          b_key = new RegExp b_key, 'i' if not _.isRegExp b_key
+          val = if (b_key.test key) then '[REDACTED]' else val
+        val
 
   @url_encode: (query_params) ->
     query_params = ue_def if not query_params?[0]? or not _.isArray query_params
     return (object) =>
-      obj = _.deepToFlat object
-      _.each (_.pairs obj), ([key, val]) ->
-        _.each query_params, (qparam) ->
-          reg_qparam = new RegExp "#{qparam}=", 'i'
-          delimiters = new RegExp '[.&?]'
-          while (start = val.search reg_qparam) != -1 and (val[start + qparam.length + 1..start + qparam.length + 10] isnt '[REDACTED]')
-            end = start + val[start..].search delimiters
-            s = val[..start - 1 + qparam.length + 1] + '[REDACTED]'
-            e = if end > start then val[end..] else ''
-            val = s + e
-          obj[key] = val
-      _.deepFromFlat obj
+      return @_url_encode object, query_params if not _.isObject object
+      return obj = _.deepMapValues object, (val) =>
+        @_url_encode val, query_params
+
+  @_url_encode: (string, query_params) ->
+    return string if not _.isString string
+    val = @_splitter string, [/[=.&?]/, /[^=.&?]/]
+    _.each query_params, (qparam) ->
+      qparam = new RegExp "#{qparam}", 'i' if not _.isRegExp qparam
+      _.each val, (v, i) ->
+        val[i + 2] = "[REDACTED]" if val[i + 2]? and val[i + 1] is '=' and qparam.test v
+    val.join('')
+
 
   @plain_text: (keywords) ->
     keywords = pt_def if not keywords?[0]? or not _.isArray keywords
     return (object) =>
-      obj = _.deepToFlat object
-      _.each (_.pairs obj), ([key, val]) ->
-        _.each keywords, (keyword) ->
-          delims = " ="
-          delimiters = new RegExp "[#{delims}]"
-          non_delimiters = new RegExp "[^#{delims}]"
-          keyword = new RegExp "#{keyword}", 'i'
-          while (start = val.search keyword) != -1
-            end1 = start + val[start..].search delimiters
-            end2 = end1 + val[end1..].search non_delimiters
-            end3 = end2 + val[end2..].search delimiters
-            #s = if end2 > end1 and end1 > start then val[..end2] + '[REDACTED]'
-            s = if not start then '[REDACTED]' else val[..start - 1] + '[REDACTED]'
-            e = if end3 > end2 and end2 > end1 and end1 > start then val[end3..] else ''
-            val = s + e
-          obj[key] = val
-      _.deepFromFlat obj
+      return @_plain_text object, keywords if not _.isObject object
+      return obj = _.deepMapValues object, (val) =>
+        @_plain_text val, keywords
+
+  @_plain_text: (string, keywords) ->
+    return string if not _.isString string
+    val = @_splitter string , [/[^=:\s]/, /[\s=:]/]
+    _.each keywords, (keyword) ->
+      keyword = new RegExp "#{keyword}", 'i' if not _.isRegExp keyword
+      _.each val, (v, i) ->
+        val[i + 2] = '[REDACTED]' if val[i + 1] isnt '=' and val[i + 2]? and keyword.test v
+    val.join('')
+
+  @_splitter: (string, d) ->
+    out = []
+    i = if d[0].test string[0] then 1 else 0
+
+    while true
+      next = string.search d[i]
+      if next is -1
+        out.push string
+        return out
+      out.push string[..next - 1]
+      string = string[next..]
+      i = 1 - i
 
 module.exports = Scrubbers
