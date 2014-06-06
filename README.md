@@ -1,6 +1,10 @@
 ## Loofah
 
-A coffeescript library to scrub sensitive data from objects.
+A Javascript library that scrubs data.
+
+## Introduction
+
+You often need to scrub sensitive information from data. For example, you may want to publish errors on [Sentry](https://app.getsentry.com/). Before doing this, you should ensure that what you are publishing does not contain fields like passwords, api keys or usernames. Loofah provides a number of easily extensible and configurable helper functions to remove these fields.
 
 ## Library Functions
 
@@ -8,30 +12,46 @@ A coffeescript library to scrub sensitive data from objects.
 Scrubbers = require 'lib/loofah'
 ```
 
-The loofah library provides a number of helper functions or scrubbers. Each of these functions takes a list of keywords which specifies what is to be scrubbed and returns a function that takes an object. When called, this function scrubs and returns a copy of the object.
+The loofah library provides a number of helper functions or scrubbers which can operate on strings and objects. Any other data type will be returned unchanged. To use one of these functions, call it with a list of keywords and then call the result of this on the data you want to scrub. 
+
+```
+clean_object = Scrubbers.function_name([keywords]) object
+```
+
+The keywords specify the fields to be scrubbed and can be either regular expressions or strings (strings will be converted to regular expressions by the scrubber). Try to choose specific keywords to avoid accidental matches: E.g `id` would match both `skid` and `idle`. Take advantage of regular expressions: To match `id` pass `^id$` (relying on implicit conversion) or `/^id$/i`. Except where mentioned, the implicit conversion creates a regular expression that is case insensitive.
 
 ### bad_keys
-Omits all keys in the object that match a case insensitive regex text with one of keywords. This is designed to remove common keys such as 'password'. You should be careful to choose fairly specific keywords - `'id'` will result in key `'skid'` being omitted.
+If passed an object, redacts all information stored in a key that matches one of the keywords.
+
+```
+Scrubbers.bad_keys(['secret', 'password']) {a: { b: 'non secret', password: 'pwd!'}, secret: 'shhh'}
+# {a: { b: 'non secret', password: '[REDACTED]'}, secret: '[REDACTED]'}
+```
+If not passed an object, returns what it was given.
 
 ### bad_vals
-Replaces any substring that exactly matches one of the keywords with `'[REDACTED]'`. This is designed to protect against sharing of known secrets such as API keys, secrets or ids.
+Redacts all substrings that match one of the keywords. Defaults to case sensitive regex.
+
+```
+Scrubbers.bad_vals(['thisISourAPIkey']) 'Don't steal our thisISourAPIkey'
+# Don't steal our [REDACTED]
+```
+
 
 ### url_encode
-Replaces an url encoded `'<key>=<value>'` pair with `'[REDACTED]'`, where key matches a case insensitive regex test with `"#{keyword}="`. For example `'www.example.com/client_id=12345&password=pwd'` will be changed to `'www.example.com/[REDACTED]&[REDACTED]'` if `client_id` and `password` (or `id` but not `client`) are provided as keywords.
+Redacts the value of a url encoded `'<key>=<value>'` pair where the key matches one of the keywords.
+
+```
+Scrubbers.url_encode(['client_id', 'client_secret']) 'www.example.com/?CliENT_Id=123456789.apps.com&client_secret=123456789&grant_type=refresh_token'
+# www.example.com/?[REDACTED].apps.com&[REDACTED]&grant_type=refresh_token
+```
 
 ### plain_text
-It replaces all text from the start of a case insensitive regex match with one of the keywords to the second contiguous set of delimiters with `'[REDACTED]'`. E.g. `'userPasswordlist<some number of delims>pwds<delim>'` will be reduced to `'user[REDACTED]<delim>'` if `'password'` is a keyword. As with bad_keys, you should choose specific keywords to prevent accidental matching.
-
-## Usage
-To remove all keys that include `'password'` or `'secret'` you would call:
+Redacts the value of `'<key><delim><value>'` pairs in where the key matches one of the keywords and the delimiters are whitespace, `=` and `:`.
 
 ```
-Scrubbers.bad_keys(['password', 'secret']) object
-```
-Similarly, to ensure that the string 'abcde12345' (which is a secret key) is removed, you would call:
-
-```
-Scrubbers.bad_vals(['abcde12345']) object
+Scrubbers.plain_text(['email', 'user']) "The user: NAME has email: NAME@example.com"
+# The user: [REDACTED] has email: [REDACTED]
 ```
 
 ## Composition
@@ -42,7 +62,7 @@ _.compose(Scrubbers.bad_keys(['password', 'secret']), Scrubbers.bad_vals(['12345
 ```
 
 ## Defaults
-Loofah provides a default configuration for each of its functions (except bad_vals which should only be called with application specific values). These defaults are defined in the `'Scrubbers'` class. You can call using the default configuration by providing no arguments.
+Loofah provides a default list of keywords for each of its functions (except bad_vals which should only be called with application specific values). You can call using the default configuration by providing no arguments.
 
 ```
 Scrubbers.bad_keys() object
@@ -67,14 +87,14 @@ This will call bad_keys twice; once with the parameters specified in defaults an
 You can easily write your own functions and use them with the provided scrubbers. If you have the following scrubber:
 
 ```
-myloofah: (keywords) ->
+loof: (keywords) ->
   return (object) ->
-    <do something on a copy of object>
+    # Do something on object, using the keywords
     return object
 ```
 You can easily compose it with the provided scrubbers:
 
 ```
-scrub = require 'user_file'
-_.compose(Scrubbers.bad_keys(['password', 'secret']), scrub.myloofah(['some', args'])) object
+new_loofah = require 'user_file'
+_.compose(Scrubbers.bad_keys(['password', 'secret']), new_loofah.loof(['some', args'])) object
 ```
