@@ -4,7 +4,7 @@ A Javascript library that scrubs data.
 
 ## Introduction
 
-You often need to scrub sensitive information from data. For example, you may want to publish errors on [Sentry](https://app.getsentry.com/). Before doing this, you should ensure that what you are publishing does not contain fields like passwords, api keys or usernames. Loofah provides a number of easily extensible and configurable helper functions to remove these fields.
+You often need to scrub sensitive information from data before it is made openly available. For example, you may want to publish errors on [Sentry](https://app.getsentry.com/). Before doing this, you should ensure that what you are publishing does not contain fields like passwords, api keys or usernames. Loofah provides a number of easily extensible and configurable helper functions to remove these.
 
 ## Library Functions
 
@@ -18,16 +18,16 @@ The loofah library provides a number of helper functions or scrubbers which can 
 clean_object = Scrubbers.function_name([keywords]) object
 ```
 
-The keywords specify the fields to be scrubbed and can be either regular expressions or strings (strings will be converted to regular expressions by the scrubber). Try to choose specific keywords to avoid accidental matches: E.g `id` would match both `skid` and `idle`. Take advantage of regular expressions: To match `id` pass `^id$` (relying on implicit conversion) or `/^id$/i`. Except where mentioned, the implicit conversion creates a regular expression that is case insensitive.
+The keywords specify the fields to be scrubbed and can be either regular expressions or strings (strings will be converted to regular expressions by the scrubber). Choose specific keywords to avoid accidental matches: `id` would match both `skid` and `idle`. Take advantage of regular expressions: To match `id` pass `^id$` (relying on implicit conversion) or `/^id$/i`. Except where mentioned, the implicit conversion creates a regular expression that is case insensitive.
 
 ### bad_keys
 If passed an object, redacts all information stored in a key that matches one of the keywords.
 
 ```
-Scrubbers.bad_keys(['secret', 'password']) {a: { b: 'non secret', password: 'pwd!'}, secret: 'shhh'}
-# {a: { b: 'non secret', password: '[REDACTED]'}, secret: '[REDACTED]'}
+Scrubbers.bad_keys(['secret', 'password']) {passwords: { a: 'pwd1', b: 'pwd2'}, secret: 'shhh'}
+# {password: { a: '[REDACTED]', b: '[REDACTED]'}, secret: '[REDACTED]'}
 ```
-If not passed an object, returns what it was given.
+If not passed an object, `bad_keys` returns what it was given.
 
 ### bad_vals
 Redacts all substrings that match one of the keywords. Defaults to case sensitive regex.
