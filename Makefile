@@ -2,6 +2,7 @@
 # `make build` or `make` compiles lib/*.coffee to lib/*.js (for all changed lib/*.coffee)
 # `make test` runs all the tests
 # `make testfile` runs just that test
+# `make clean` deletes all the compiled js files in lib-js
 TESTS=$(shell cd test && ls *.coffee | sed s/\.coffee$$//)
 LIBS=$(shell find . -regex "^./lib\/.*\.coffee\$$" | sed s/\.coffee$$/\.js/ | sed s/lib/lib-js/)
 
