@@ -37,7 +37,7 @@ If not passed an object, `bad_keys` returns what it was given.
 Redacts all substrings that match one of the keywords. Defaults to case sensitive regex.
 
 ```javascript
-Scrubbers.bad_vals(['thisIsOurApiKey'])( 'Don't steal our thisIsOurApiKey')
+Scrubbers.bad_vals(['thisIsOurApiKey'])( "Don't steal our thisIsOurApiKey")
 // Don't steal our [REDACTED]
 ```
 
