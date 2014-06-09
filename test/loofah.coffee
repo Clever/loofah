@@ -15,15 +15,15 @@ describe 'Loofah', ->
           secret: 'shhhh'
           c: 'non sensitive'
           big_Secret: 'SHHHH'
-        passwords:
+        password:
           d: 'qwerty'
       expected =
         a: 'non sensitive'
         b:
           secret: '[REDACTED]'
           c: 'non sensitive'
-          big_Secret: '[REDACTED]'
-        passwords:
+          big_Secret: 'SHHHH'
+        password:
           d: '[REDACTED]'
       assert.deepEqual (Scrubbers.bad_keys(['secret', 'password']) object), expected
 
@@ -82,7 +82,7 @@ describe 'Loofah', ->
       expected =
         a: 'Error: something went wrong'
         b: 'Error: Username [REDACTED] was taken'
-        c: 'Error: thisUsernames [REDACTED] was taken'
+        c: 'Error: thisUsernames 12345@example.com was taken'
         d: 'username [REDACTED] was taken'
         e: 'Error: Username [REDACTED]'
         f: 'Error: Username  =  [REDACTED]'
