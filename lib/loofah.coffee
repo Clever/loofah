@@ -4,13 +4,23 @@ _.mixin require 'underscore.deep' # the version that works is not on npm
 class Scrubbers
   bk_def = ['password', 'user', 'email', 'api', 'secret']
   ue_def = ['client_id', 'client_secret', 'refresh_token']
-  pt_def = ['user', 'password', 'email']
+  pt_def = ['user', 'username', 'password', 'email']
 
   @default: ->
     bk = Scrubbers.bad_keys()
     ue = Scrubbers.url_encode()
     pt = Scrubbers.plain_text()
     _.compose(pt, ue, bk)
+
+  @bad_keys: (b_keys) ->
+    b_keys = bk_def if not b_keys?[0]? or not _.isArray b_keys
+    return (object) ->
+      return object if not _.isObject object
+      return obj = _.deepMapValues object, (val, key) ->
+        _.each b_keys, (b_key) ->
+          b_key = new RegExp "(\\.|^)#{b_key}(\\.|$)", 'i' if not _.isRegExp b_key
+          val = if (b_key.test key) then '[REDACTED]' else val
+        val
 
   @bad_vals: (substrings) ->
     return (object) =>
@@ -25,16 +35,6 @@ class Scrubbers
       string = string.replace substring, '[REDACTED]'
     string
 
-  @bad_keys: (b_keys) ->
-    b_keys = bk_def if not b_keys?[0]? or not _.isArray b_keys
-    return (object) ->
-      return object if not _.isObject object
-      return obj = _.deepMapValues object, (val, key) ->
-        _.each b_keys, (b_key) ->
-          b_key = new RegExp b_key, 'i' if not _.isRegExp b_key
-          val = if (b_key.test key) then '[REDACTED]' else val
-        val
-
   @url_encode: (query_params) ->
     query_params = ue_def if not query_params?[0]? or not _.isArray query_params
     return (object) =>
@@ -46,11 +46,10 @@ class Scrubbers
     return string if not _.isString string
     val = @_splitter string, [/[=.&?]/, /[^=.&?]/]
     _.each query_params, (qparam) ->
-      qparam = new RegExp "#{qparam}", 'i' if not _.isRegExp qparam
+      qparam = new RegExp "(^|[=.&?])#{qparam}", 'i' if not _.isRegExp qparam
       _.each val, (v, i) ->
         val[i + 2] = "[REDACTED]" if val[i + 2]? and val[i + 1] is '=' and qparam.test v
     val.join('')
-
 
   @plain_text: (keywords) ->
     keywords = pt_def if not keywords?[0]? or not _.isArray keywords
@@ -63,7 +62,7 @@ class Scrubbers
     return string if not _.isString string
     val = @_splitter string , [/[^=:\s]/, /[\s=:]/]
     _.each keywords, (keyword) ->
-      keyword = new RegExp "#{keyword}", 'i' if not _.isRegExp keyword
+      keyword = new RegExp "^#{keyword}$", 'i' if not _.isRegExp keyword
       _.each val, (v, i) ->
         val[i + 2] = '[REDACTED]' if val[i + 1] isnt '=' and val[i + 2]? and keyword.test v
     val.join('')
