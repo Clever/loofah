@@ -29,7 +29,7 @@ If passed an object, redacts all information stored in a key that matches one of
 
 ```javascript
 Scrubbers.bad_keys(['secret', 'password'])({password: { a: 'pwd1', b: 'pwd2'}, secrets: 'shhh'})
-# {password: { a: '[REDACTED]', b: '[REDACTED]'}, secrets: 'shhh'} # secrets is not matched
+// {password: { a: '[REDACTED]', b: '[REDACTED]'}, secrets: 'shhh'} // secrets is not matched
 ```
 If not passed an object, `bad_keys` returns what it was given.
 
@@ -38,7 +38,7 @@ Redacts all substrings that match one of the keywords. Defaults to case sensitiv
 
 ```javascript
 Scrubbers.bad_vals(['thisIsOurApiKey'])( 'Don't steal our thisIsOurApiKey')
-# Don't steal our [REDACTED]
+// Don't steal our [REDACTED]
 ```
 
 
@@ -47,7 +47,7 @@ Redacts the value of a url encoded `'<key>=<value>'` pair where the key matches 
 
 ```javascript
 Scrubbers.url_encode(['client_id', 'client_secret'])('www.example.com/?CliENT_Id=123456789.apps.com&client_secret=123456789&grant_type=refresh_token')
-# www.example.com/?[REDACTED].apps.com&[REDACTED]&grant_type=refresh_token
+// www.example.com/?[REDACTED].apps.com&[REDACTED]&grant_type=refresh_token
 ```
 
 ### plain_text
@@ -55,7 +55,7 @@ Redacts the value of `'<key><delim><value>'` pairs in where the key matches one 
 
 ```javascript
 Scrubbers.plain_text(['email', 'user'])("The user: NAME has email: NAME@example.com")
-# The user: [REDACTED] has email: [REDACTED]
+// The user: [REDACTED] has email: [REDACTED]
 ```
 
 ## Composition
