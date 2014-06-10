@@ -53,9 +53,9 @@ describe 'Loofah', ->
       it 'replaces sensitive url encoded info in strings and objects with [REDACTED]', ->
         assert.deepEqual (Scrubbers.url_encode([/client_*/i, 'refresh_token']) input), output
 
-   _.each ['this username NAME is in a string', 2, undefined, null], (value) ->
-     it 'if not given a url, returns what it was given', ->
-      assert.deepEqual (Scrubbers.url_encode(['username']) value), value 
+  _.each ['this username NAME is in a string', 2, undefined, null], (value) ->
+    it 'if not given a url, returns what it was given', ->
+      assert.deepEqual (Scrubbers.url_encode(['username']) value), value
    
   describe 'plain_text', ->
     _.each [
@@ -94,28 +94,32 @@ describe 'Loofah', ->
     _.each [
       [Scrubbers.bad_keys(), {password: 'pwd', a: 'password'}, {password: '[REDACTED]', a: 'password'}]
       [Scrubbers.plain_text(), 'user NAME is taken', 'user [REDACTED] is taken']
-      [Scrubbers.url_encode(), 'www.example.com/?client_id=abc&client_secret=123', 'www.example.com/?client_id=[REDACTED]&client_secret=[REDACTED]']
+      [Scrubbers.url_encode(), 'www.example.com/?client_id=abc&client_secret=123'
+        ,'www.example.com/?client_id=[REDACTED]&client_secret=[REDACTED]']
     ], ([func, input, output]) ->
       it 'has default args when none are given', ->
         assert.deepEqual func(input), output
 
     _.each [
       [{password: 'pwd'}, {password: '[REDACTED]'}]
-      [{url: 'refresh_token=1234512345a&client_id=someid&client_secret=somethingelse'}, {url: 'refresh_token=[REDACTED]&client_id=[REDACTED]&client_secret=[REDACTED]'}]
+      [
+        {url: 'refresh_token=1234512345a&client_id=someid&client_secret=somethingelse'}
+        {url: 'refresh_token=[REDACTED]&client_id=[REDACTED]&client_secret=[REDACTED]'}
+      ]
       [{string: 'username = 12345@example.com'}, {string: 'username = [REDACTED]'}]
     ], ([input, output]) ->
       it 'allows default composition', ->
         assert.deepEqual (Scrubbers.default() input), output
 
-    it 'allows user defined functions to be composed with default ones', ->
-      object =
-        password: 'pwd'
-        url: 'refresh_token=1234512345a&client_id=someid&client_secret=somethingelse'
-        string: 'username = 12345@example.com'
-        omit_this_key: 'some_val'
-      expected =
-        password: '[REDACTED]'
-        url: 'refresh_token=[REDACTED]&client_id=[REDACTED]&client_secret=[REDACTED]'
-        string: 'username = [REDACTED]'
+    _.each [
+      [{password: 'pwd'}, {password: '[REDACTED]'}]
+      [
+        {url: 'refresh_token=1234512345a&client_id=someid&client_secret=somethingelse'}
+        {url: 'refresh_token=[REDACTED]&client_id=[REDACTED]&client_secret=[REDACTED]'}
+      ]
+      [{string: 'username = 12345@example.com'}, {string: 'username = [REDACTED]'}]
+      [{omit_this_key: 'val'}, {}]
+    ], ([input, output]) ->
+      it 'allows user defined functions to be composed with default ones', ->
       scrub = _.compose(Scrubbers.default(), user_scrub.scrub(['some', 'bads']))
-      assert.deepEqual (scrub object), expected
+      assert.deepEqual (scrub input), output
