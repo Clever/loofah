@@ -59,13 +59,12 @@ module.exports =
     val.join('')
 
   _splitter: _splitter = (string, delims) ->
-    list = []
+    split_string = []
     i = if delims[0].test string[0] then 1 else 0
     while true
-      next = string.search delims[i]
-      if next is -1
-        list.push string
-        return list
-      list.push string[..next - 1]
+      if (next = string.search delims[i]) is -1
+        split_string.push string
+        return split_string
+      split_string.push string[..next - 1]
       string = string[next..]
       i = 1 - i

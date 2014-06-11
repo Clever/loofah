@@ -6,6 +6,21 @@ Scrubbers = require ("#{__dirname}/../lib/loofah")
 user_scrub = require("#{__dirname}/lib/user_scrubber")
 
 describe 'Loofah', ->
+  describe 'splitter', ->
+    _.each [
+      ['this is a sentence', ['this', ' ', 'is', ' ', 'a',  ' ', 'sentence'], ' ']
+      ['consecutive    delims', ['consecutive', '    ', 'delims'], ' ']
+      ['multiple = delims', ['multiple', ' = ', 'delims'], '= ']
+      ['   delim', ['   ', 'delim'], ' ']
+      ['delim   ', ['delim', '   '], ' ']
+    ], ([input, output, delim]) ->
+      it 'correctly splits strings', ->
+        regex = [
+          new RegExp "[#{delim}]"
+          new RegExp "[^#{delim}]"
+        ]
+        assert.deepEqual Scrubbers._splitter(input, regex), output
+
 
   describe 'bad_keys', ->
     _.each [
@@ -53,10 +68,11 @@ describe 'Loofah', ->
       it 'replaces sensitive url encoded info in strings and objects with [REDACTED]', ->
         assert.deepEqual (Scrubbers.url_encode([/client_*/i, 'refresh_token']) input), output
 
-  _.each ['this username NAME is in a string', 2, undefined, null], (value) ->
-    it 'if not given a url, returns what it was given', ->
-      assert.deepEqual (Scrubbers.url_encode(['username']) value), value
-   
+    _.each ['this username NAME is in a string', 2, undefined, null], (value) ->
+      it 'if not given a url, returns what it was given', ->
+        assert.deepEqual (Scrubbers.url_encode(['username']) value), value
+
+
   describe 'plain_text', ->
     _.each [
       ['Error: something went wrong', 'Error: something went wrong']
@@ -75,11 +91,8 @@ describe 'Loofah', ->
       it 'if not given an object or string, returns what it was given', ->
         assert.equal (Scrubbers.plain_text(['username']) value), value
 
-  describe 'composition and extension', ->
-      
-    it 'allows user defined functions', ->
-      assert.deepEqual (user_scrub.scrub(['some', 'bads']) {a:'good', omit_this_key:'bad'}), {a:'good'}
 
+  describe 'composition and extension', ->
     _.each [
       [{user:'name'}, {user:'[REDACTED]'}]
       [{id:'number'}, {id:'number'}]
