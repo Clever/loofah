@@ -7,7 +7,7 @@ A Javascript library that scrubs data.
 ```javascript
 Scrubbers = require 'lib/loofah'
 ```
-You often need to scrub sensitive information from data before moving it to an insecure location, or publishing it. For example, you may want to publish errors on [Sentry](https://app.getsentry.com/) and before doing this, you should ensure that you are not exposing fields like passwords, api keys or usernames. Loofah provides a number of easily extensible and configurable helper functions to remove these. For example, to get an object where the value is redacted for any keys that are either `password` or `secret` you would call.
+You often need to scrub sensitive information from data before moving it to an insecure location, or publishing it. For example, you may want to publish errors on [Sentry](https://app.getsentry.com/) and before doing this, you should ensure that you are not exposing fields like passwords, api keys or usernames. Loofah provides a number of easily extensible and configurable helper functions to remove these. For example, to redact all values associated with a key of `password` or `secret` you would call:
 
 ```javascript
 clean_object = Scrubbers.bad_keys(['password', 'secret'])(object)
