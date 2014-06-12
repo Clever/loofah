@@ -1,7 +1,7 @@
 _ = require 'underscore'
 
 module.exports =
-  scrub: (bads) ->
+  scrub: (keywords) ->
     return (object) ->
       _.omit object, 'omit_this_key'
 
