@@ -17,22 +17,23 @@ module.exports =
     (object) -> _check_and_call _key_value_pairs, object, {keywords, delims}
 
 _check_and_call = (func, object, keywords) ->
-  return object unless _.isString(object) or _.isObject(object)
   return func object, keywords if _.isString object
-  _.deepMapValues object, (val, key) ->
-    return val unless  _.isString val
-    func val, keywords, key
+  return _map_over_array(func, object, keywords) if _.isArray object
+  return _map_over_object(func, object, keywords) if _.isObject object
+  object
 
-_splitter = (string, delims) ->
-  split_string = []
-  i = if delims[0].test string[0] then 1 else 0
-  while true
-    if (next = string.search delims[i]) is -1
-      split_string.push string
-      return split_string
-    split_string.push string[..next - 1]
-    string = string[next..]
-    i = 1 - i
+_map_over_object = (func, object, keywords, base_key='') ->
+  _.deepMapValues object, (val, key) ->
+    return _map_over_array(func, val, keywords, "#{base_key}.#{key}") if _.isArray val
+    return val unless _.isString val
+    func val, keywords, "#{base_key}.#{key}"
+
+_map_over_array = (func, object, keywords, key) ->
+  _.map object, (item) ->
+    return _map_over_array(func, item, keywords, key) if _.isArray item
+    return _map_over_object(func, item, keywords, key) if _.isObject item
+    return item unless _.isString item
+    func item, keywords, key
 
 _object_keys = (val, b_keys, key) ->
   return val unless key?

@@ -6,21 +6,6 @@ Scrubbers = require ("#{__dirname}/../lib/loofah")
 user_scrub = require("#{__dirname}/lib/user_scrubber")
 
 describe 'Loofah', ->
-  describe 'splitter', ->
-    _.each [
-      ['this is a sentence', ['this', ' ', 'is', ' ', 'a',  ' ', 'sentence'], ' ']
-      ['consecutive    delims', ['consecutive', '    ', 'delims'], ' ']
-      ['multiple = delims', ['multiple', ' = ', 'delims'], '= ']
-      ['   delim', ['   ', 'delim'], ' ']
-      ['delim   ', ['delim', '   '], ' ']
-    ], ([input, output, delim]) ->
-      it 'correctly splits strings', ->
-        regex = [
-          new RegExp "[#{delim}]"
-          new RegExp "[^#{delim}]"
-        ]
-        assert.deepEqual Scrubbers._private._splitter(input, regex), output
-
   describe 'object_keys', ->
     _.each [
       [{a: 'non sensitive'}, {a: 'non sensitive'}]
@@ -29,8 +14,16 @@ describe 'Loofah', ->
         {b: {secret:'[REDACTED]', c: 'non sensitive'}, big_secret: 'SHHH'}
       ]
       [{password: 'pwd'}, {password: '[REDACTED]'}]
+      [
+        {b: [{secret:['shhh'], c: ['non sensitive']}], big_secret: 'SHHH'}
+        {b: [{secret:['[REDACTED]'], c: ['non sensitive']}], big_secret: 'SHHH'}
+      ]
+      [
+        {secret:[{b: [{a:[['shhh']]}]}]}
+        {secret:[{b: [{a:[['[REDACTED]']]}]}]}
+      ]
     ], ([input, output]) ->
-      it 'scrubs keys with banned names', ->
+      it.only 'scrubs keys with banned names', ->
         assert.deepEqual (Scrubbers.object_keys(['secret', 'password']) input), output
 
     _.each ['string', 2, undefined, null], (value) ->
@@ -126,6 +119,7 @@ describe 'Loofah', ->
       it 'allows default composition', ->
         assert.deepEqual (Scrubbers.default() input), output
 
+
     _.each [
       [{password: 'pwd'}, {password: '[REDACTED]'}]
       [
@@ -136,5 +130,5 @@ describe 'Loofah', ->
       [{omit_this_key: 'val'}, {}]
     ], ([input, output]) ->
       it 'allows user defined functions to be composed with default ones', ->
-      scrub = _.compose(Scrubbers.default(), user_scrub.scrub(['some', 'keywords']))
-      assert.deepEqual (scrub input), output
+        scrub = _.compose(Scrubbers.default(), user_scrub.scrub(['some', 'keywords']))
+        assert.deepEqual (scrub input), output
