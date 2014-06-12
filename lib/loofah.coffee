@@ -50,10 +50,7 @@ _substrings = (string, sstrings) ->
 
 _key_value_pairs = (string, keywords) ->
   {keywords, delims} = keywords
-  val = _splitter string , [
-      new RegExp "[^#{delims}]"
-      new RegExp "[#{delims}]"
-  ]
+  val = string.split new RegExp "([#{delims}]+)"
   _.each keywords, (keyword) ->
     keyword = new RegExp "^#{keyword}$", 'i' unless _.isRegExp keyword
     _.each val, (v, i) ->
@@ -61,11 +58,9 @@ _key_value_pairs = (string, keywords) ->
   val.join('')
 
 _url_query_params = (string, query_params) ->
-  val = _splitter string, [/[=.&?]/, /[^=.&?]/]
+  val = string.split /([=.&/]+)/
   _.each query_params, (qparam) ->
     qparam = new RegExp "(^|[=.&?])#{qparam}", 'i' unless _.isRegExp qparam
     _.each val, (v, i) ->
       val[i + 2] = "[REDACTED]" if val[i + 2]? and val[i + 1] is '=' and qparam.test v
   val.join('')
-
-module.exports._private = {_splitter} if process.env.NODE_ENV is 'test'
