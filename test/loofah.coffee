@@ -23,7 +23,7 @@ describe 'Loofah', ->
         {secret:[{b: [{a:[['[REDACTED]']]}]}]}
       ]
     ], ([input, output]) ->
-      it.only 'scrubs keys with banned names', ->
+      it 'scrubs keys with banned names', ->
         assert.deepEqual (Scrubbers.object_keys(['secret', 'password']) input), output
 
     _.each ['string', 2, undefined, null], (value) ->
