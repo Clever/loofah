@@ -16,10 +16,10 @@ module.exports =
   key_value_pairs: key_value_pairs = (keywords = ['user', 'username', 'password', 'email'], delims = "\\s:=") ->
     (object) -> _check_and_call _key_value_pairs, object, {keywords, delims}
 
-_check_and_call = (func, object, keywords) ->
-  return func object, keywords if _.isString object
-  return _map_over_array(func, object, keywords) if _.isArray object
-  return _map_over_object(func, object, keywords) if _.isObject object
+_check_and_call = (func, object, keywords, key) ->
+  return func object, keywords, key if _.isString object
+  return _map_over_array(func, object, keywords, key) if _.isArray object
+  return _map_over_object(func, object, keywords, key) if _.isObject object
   object
 
 _map_over_object = (func, object, keywords, base_key='') ->
@@ -30,10 +30,7 @@ _map_over_object = (func, object, keywords, base_key='') ->
 
 _map_over_array = (func, object, keywords, key) ->
   _.map object, (item) ->
-    return _map_over_array(func, item, keywords, key) if _.isArray item
-    return _map_over_object(func, item, keywords, key) if _.isObject item
-    return item unless _.isString item
-    func item, keywords, key
+    _check_and_call(func, item, keywords, key)
 
 _object_keys = (val, b_keys, key) ->
   return val unless key?
