@@ -5,30 +5,27 @@ module.exports =
   default: -> _.compose(key_value_pairs(), url_query_params(), object_keys())
 
   object_keys: object_keys = (b_keys = ['password', 'user', 'email', 'api', 'secret']) ->
-    (object) -> _check_and_call _object_keys, object, b_keys
+    (val) -> deep_map_strings val, (subval, subkey) -> _object_keys subval, b_keys, subkey
 
   substrings: substrings = (sstrings) ->
-    (object) -> _check_and_call _substrings, object, sstrings
+    (val) -> deep_map_strings val, (subval) -> _substrings subval, sstrings
 
   url_query_params: url_query_params = (query_params = ['client_id', 'client_secret', 'refresh_token']) ->
-    (object) -> _check_and_call _url_query_params, object, query_params
+    (val) -> deep_map_strings val, (subval) -> _url_query_params subval, query_params
 
   key_value_pairs: key_value_pairs = (keywords = ['user', 'username', 'password', 'email'], delims = "\\s:=") ->
-    (object) -> _check_and_call _key_value_pairs, object, {keywords, delims}
+    (val) -> deep_map_strings val, (subval) -> _key_value_pairs subval, {keywords, delims}
 
-_check_and_call = (func, object, keywords, key) ->
-  return func object, keywords, key if _.isString object
-  return _map_over_array(func, object, keywords, key) if _.isArray object
-  return _map_over_object(func, object, keywords, key) if _.isObject object
-  object
+deep_map_objects_and_arrays = (val, fn) ->
+  key_helper = (val, fn, key) ->
+    switch
+      when _.isPlainObject val then _.deepMapValues val, (subval, subkey) -> key_helper subval, fn, "#{key}.#{subkey}"
+      when _.isArray val then _.map val, (subval) -> key_helper subval, fn, key
+      else fn val, key
+  key_helper val, fn, ''
 
-_map_over_object = (func, object, keywords, base_key='') ->
-  _.deepMapValues object, (val, key) ->
-    _check_and_call func, val, keywords, "#{base_key}.#{key}"
-
-_map_over_array = (func, object, keywords, key) ->
-  _.map object, (item) ->
-    _check_and_call func, item, keywords, key
+deep_map_strings = (val, fn) ->
+  deep_map_objects_and_arrays val, (subval, subkey) -> if _.isString subval then fn subval, subkey else subval
 
 _object_keys = (val, b_keys, key) ->
   return val unless key?

@@ -33,7 +33,7 @@ myscrubber({password: 'scrub this'})
 The keywords specify search terms and can either be regular expressions or strings. Some functions will scrub the match (substrings) while others expect the search term to be a key and will scrub the value that follows. Strings will be converted to regular expressions by the scrubber. The Regex will generally be case insensitive and need to match an entire key.
 
 ### object_keys
-If passed an object, redacts all information stored in a key that matches one of the keywords. If not passed an object, `object keys` returns what it was given.
+If passed an object, redacts all information stored in a key that matches one of the keywords. If not passed an object, `object_keys` returns what it was given.
 
 ```javascript
 Scrubbers.object_keys(['secret', 'password'])({password: { a: 'pwd1', b: 'pwd2'}, secrets: 'not matched'})
