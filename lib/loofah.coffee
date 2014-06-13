@@ -1,5 +1,5 @@
 _ = require 'underscore'
-_.mixin require 'underscore.deep' # the version that works is not on npm
+_.mixin require 'underscore.deep'
 
 module.exports =
   default: -> _.compose(key_value_pairs(), url_query_params(), object_keys())
@@ -14,7 +14,7 @@ module.exports =
     (val) -> deep_map_strings val, (subval) -> _url_query_params subval, query_params
 
   key_value_pairs: key_value_pairs = (keywords = ['user', 'username', 'password', 'email'], delims = "\\s:=") ->
-    (val) -> deep_map_strings val, (subval) -> _key_value_pairs subval, {keywords, delims}
+    (val) -> deep_map_strings val, (subval) -> _key_value_pairs subval, keywords, delims
 
 deep_map_objects_and_arrays = (val, fn) ->
   key_helper = (val, fn, key) ->
@@ -42,8 +42,7 @@ _substrings = (string, sstrings) ->
     string = string.replace sstring, '[REDACTED]'
   string
 
-_key_value_pairs = (string, keywords) ->
-  {keywords, delims} = keywords
+_key_value_pairs = (string, keywords, delims) ->
   val = string.split new RegExp "([#{delims}]+)"
   _.each keywords, (keyword) ->
     keyword = new RegExp "^#{keyword}$", 'i' unless _.isRegExp keyword
