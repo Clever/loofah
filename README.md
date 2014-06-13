@@ -18,7 +18,7 @@ clean_object
 
 ## Library Functions
 
-The loofah library provides a number of helper functions or scrubbers which operate on strings and objects. If given an object, they call themselves on all of the key-value pairs using deepMapValues from [underscore.deep](https://github.com/Clever/underscore.deep). If the functions encounter another data type, it is returned unchanged.
+The loofah library provides a number of helper functions or scrubbers which operate on strings, objects and arrays. If given an object or array, the functions call themselves on all of its members using _.map or deepMapValues from [underscore.deep](https://github.com/Clever/underscore.deep). If the functions encounter something that is not a string, object or array it is returned unchanged.
 
 Each helper function takes a list of keywords - in the example above these are `password` and `secret`. These return a function that can then be called on an object. 
 
@@ -41,7 +41,7 @@ Scrubbers.object_keys(['secret', 'password'])({password: { a: 'pwd1', b: 'pwd2'}
 ```
 
 ### substrings
-Redacts all substrings that match one of the keywords. If given an object, `substrings` calls itself on each of the values.
+Redacts all substrings that match one of the keywords. If given an array or object `substrings` calls itself on each of the values.
 NB: Keywords passed as strings will be converted to case sensitive Regex
 
 ```javascript
@@ -52,7 +52,7 @@ Scrubbers.substrings(['thisIsOurApiKey'])({a: 'wrong case thisisourapikey', b: '
 ```
 
 ### url_query_params
-Redacts the value of a url encoded `'<key>=<value>'` pair where the key matches one of the keywords. If passed an object, `url_query_params` calls itself on each of the values.
+Redacts the value of a url encoded `'<key>=<value>'` pair where the key matches one of the keywords. If passed an array or object, `url_query_params` calls itself on each of the values.
 
 ```javascript
 Scrubbers.url_query_params(['client_id', 'client_secret'])('www.example.com/?CliENT_Id=123456789.apps.com&client_secret=123456789&grant_type=refresh_token')
@@ -60,7 +60,7 @@ Scrubbers.url_query_params(['client_id', 'client_secret'])('www.example.com/?Cli
 ```
 
 ### key_value_pairs
-Redacts the value of `'<key><delim><value>'` pairs in where the key matches one of the keywords. The delimiters can be specified in a string after the keywords, else they default to whitespace, `=` and `:`. If passed an object `key_value_pairs` calls itself on each of the values.
+Redacts the value of `'<key><delim><value>'` pairs in where the key matches one of the keywords. The delimiters can be specified in a string after the keywords, else they default to whitespace, `=` and `:`. If passed an array or object `key_value_pairs` calls itself on each of the values.
 
 ```javascript
 Scrubbers.key_value_pairs(['email', 'user'])("The user: NAME has email = NAME@example.com")
