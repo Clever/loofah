@@ -24,13 +24,11 @@ _check_and_call = (func, object, keywords, key) ->
 
 _map_over_object = (func, object, keywords, base_key='') ->
   _.deepMapValues object, (val, key) ->
-    return _map_over_array(func, val, keywords, "#{base_key}.#{key}") if _.isArray val
-    return val unless _.isString val
-    func val, keywords, "#{base_key}.#{key}"
+    _check_and_call func, val, keywords, "#{base_key}.#{key}"
 
 _map_over_array = (func, object, keywords, key) ->
   _.map object, (item) ->
-    _check_and_call(func, item, keywords, key)
+    _check_and_call func, item, keywords, key
 
 _object_keys = (val, b_keys, key) ->
   return val unless key?
