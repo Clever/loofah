@@ -19,7 +19,9 @@ module.exports =
 deep_map_objects_and_arrays = (val, fn) ->
   key_helper = (val, fn, key) ->
     switch
-      when _.isPlainObject val then _.deepMapValues val, (subval, subkey) -> key_helper subval, fn, "#{key}.#{subkey}"
+      when _.isPlainObject val
+        _.deepMapValues val, (subval, subkey) ->
+          key_helper subval, fn, if key then "#{key}.#{subkey}" else subkey
       when _.isArray val then _.map val, (subval) -> key_helper subval, fn, key
       else fn val, key
   key_helper val, fn, ''
