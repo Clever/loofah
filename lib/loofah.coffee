@@ -17,7 +17,8 @@ module.exports =
     (val) -> deep_map_strings val, (subval) -> _key_value_pairs subval, keywords, delims
 
 deep_map_strings = (val, fn) ->
-  deep_map_objects_and_arrays val, (subval, subkey) -> if _.isString subval then fn subval, subkey else subval
+  deep_map_objects_and_arrays val, (subval, subkey) ->
+    if _.isString subval then fn subval, subkey else subval
 
 deep_map_objects_and_arrays = (val, fn) ->
   key_helper = (val, fn, key) ->

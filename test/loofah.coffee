@@ -111,7 +111,7 @@ describe 'Loofah', ->
         assert.deepEqual func(input), output
 
     _.each [
-      [{password: 'pwd'}, {password: '[REDACTED]'}]
+      [[{password: 'pwd'}, {secret: 'sth'}], [{password: '[REDACTED]'}, {secret: '[REDACTED]'}]]
       [
         {url: 'refresh_token=1234512345a&client_id=someid&client_secret=somethingelse'}
         {url: 'refresh_token=[REDACTED]&client_id=[REDACTED]&client_secret=[REDACTED]'}
