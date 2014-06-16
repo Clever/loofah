@@ -3,7 +3,9 @@ assert = require 'assert'
 os = require 'os'
 
 Scrubbers = require ("#{__dirname}/../lib/loofah")
-user_scrub = require("#{__dirname}/lib/user_scrubber")
+user_scrub = (keywords) ->
+  return (object) ->
+    _.omit object, 'omit_this_key'
 
 describe 'Loofah', ->
   describe 'object_keys', ->
@@ -119,7 +121,6 @@ describe 'Loofah', ->
       it 'allows default composition', ->
         assert.deepEqual (Scrubbers.default() input), output
 
-
     _.each [
       [{password: 'pwd'}, {password: '[REDACTED]'}]
       [
@@ -130,5 +131,5 @@ describe 'Loofah', ->
       [{omit_this_key: 'val'}, {}]
     ], ([input, output]) ->
       it 'allows user defined functions to be composed with default ones', ->
-        scrub = _.compose(Scrubbers.default(), user_scrub.scrub(['some', 'keywords']))
+        scrub = _.compose(Scrubbers.default(), user_scrub(['some', 'keywords']))
         assert.deepEqual (scrub input), output
