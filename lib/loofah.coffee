@@ -16,6 +16,9 @@ module.exports =
   key_value_pairs: key_value_pairs = (keywords = ['user', 'username', 'password', 'email'], delims = "\\s:=") ->
     (val) -> deep_map_strings val, (subval) -> _key_value_pairs subval, keywords, delims
 
+deep_map_strings = (val, fn) ->
+  deep_map_objects_and_arrays val, (subval, subkey) -> if _.isString subval then fn subval, subkey else subval
+
 deep_map_objects_and_arrays = (val, fn) ->
   key_helper = (val, fn, key) ->
     switch
@@ -25,9 +28,6 @@ deep_map_objects_and_arrays = (val, fn) ->
       when _.isArray val then _.map val, (subval) -> key_helper subval, fn, key
       else fn val, key
   key_helper val, fn, ''
-
-deep_map_strings = (val, fn) ->
-  deep_map_objects_and_arrays val, (subval, subkey) -> if _.isString subval then fn subval, subkey else subval
 
 _object_keys = (val, b_keys, key) ->
   return val unless key?
@@ -42,18 +42,18 @@ _substrings = (string, sstrings) ->
     string = string.replace sstring, '[REDACTED]'
   string
 
-_key_value_pairs = (string, keywords, delims) ->
-  val = string.split new RegExp "([#{delims}]+)"
-  _.each keywords, (keyword) ->
-    keyword = new RegExp "^#{keyword}$", 'i' unless _.isRegExp keyword
-    _.each val, (v, i) ->
-      val[i + 2] = '[REDACTED]' if val[i + 1] isnt '=' and val[i + 2]? and keyword.test v
-  val.join('')
-
 _url_query_params = (string, query_params) ->
   val = string.split /([=.&/]+)/
   _.each query_params, (qparam) ->
     qparam = new RegExp "(^|[=.&?])#{qparam}", 'i' unless _.isRegExp qparam
     _.each val, (v, i) ->
       val[i + 2] = "[REDACTED]" if val[i + 2]? and val[i + 1] is '=' and qparam.test v
+  val.join('')
+
+_key_value_pairs = (string, keywords, delims) ->
+  val = string.split new RegExp "([#{delims}]+)"
+  _.each keywords, (keyword) ->
+    keyword = new RegExp "^#{keyword}$", 'i' unless _.isRegExp keyword
+    _.each val, (v, i) ->
+      val[i + 2] = '[REDACTED]' if val[i + 1] isnt '=' and val[i + 2]? and keyword.test v
   val.join('')
