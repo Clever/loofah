@@ -10,10 +10,10 @@ Scrubbers = require 'lib/loofah'
 You often need to scrub sensitive information from data before moving it to an insecure location, or publishing it. For example, you may want to publish errors on [Sentry](https://app.getsentry.com/) and before doing this, you should ensure that you are not exposing fields like passwords, api keys or usernames. Loofah provides a number of easily extensible and configurable helper functions to remove these. For example, to redact all values associated with a key of `password` or `secret` you would call:
 
 ```javascript
-object = {a : {password: 'pwd', secrets: 'no match'}, secret: 'shhh'
+object = {a : {password: 'pwd', secrets: 'no match'}, secret: 'shhh'}
 clean_object = Scrubbers.object_keys(['password', 'secret'])(object)
 clean_object
-// {a : {password: '[REDACTED]', secrets: 'no match'}, secret: '[REDACTED]'
+// {a : {password: '[REDACTED]', secrets: 'no match'}, secret: '[REDACTED]'}
 ```
 
 ## Library Functions
@@ -25,9 +25,9 @@ Each helper function takes a list of keywords - in the example above these are `
 ```javascript
 myscrubber = Scrubbers.object_keys(['password', 'secret'])
 myscrubber({nothing: 'to scrub'})
-# {nothing: 'to scrub'}
+// {nothing: 'to scrub'}
 myscrubber({password: 'scrub this'})
-# {password: '[REDACTED]'}
+// {password: '[REDACTED]'}
 ```
 
 The keywords specify search terms and can either be regular expressions or strings. Some functions will scrub the match (substrings) while others expect the search term to be a key and will scrub the value that follows. Strings will be converted to regular expressions by the scrubber. The Regex will generally be case insensitive and need to match an entire key.
@@ -47,8 +47,8 @@ NB: Keywords passed as strings will be converted to case sensitive Regex
 ```javascript
 Scrubbers.substrings(['thisIsOurApiKey'])( "Don't steal our thisIsOurApiKey")
 // Don't steal our [REDACTED]
-Scrubbers.substrings(['thisIsOurApiKey'])({a: 'wrong case thisisourapikey', b: 'look, thisIsOurApiKey'})
-// {a: 'wrong case thisisourapikey', b: 'look, [REDACTED]'}
+Scrubbers.substrings(['thisIsOurApiKey'])(['wrong case thisisourapikey', 'look, thisIsOurApiKey'])
+// ['wrong case thisisourapikey', 'look, [REDACTED]']
 ```
 
 ### url_query_params
@@ -56,7 +56,7 @@ Redacts the value of a url encoded `'<key>=<value>'` pair where the key matches 
 
 ```javascript
 Scrubbers.url_query_params(['client_id', 'client_secret'])('www.example.com/?CliENT_Id=123456789.apps.com&client_secret=123456789&grant_type=refresh_token')
-// www.example.com/?[REDACTED].apps.com&[REDACTED]&grant_type=refresh_token
+// www.example.com/?CliENT_Id=[REDACTED].apps.com&client_secret=[REDACTED]&grant_type=refresh_token
 ```
 
 ### key_value_pairs
@@ -71,7 +71,10 @@ myscrubber = Scrubbers.key_value_pairs(['email', 'user'], "//s=:-") // delimiter
 ```
 
 ## Composition
-These functions can easily be composed using _.compose:
+```javascript
+_ = require 'underscore'
+```
+These functions can easily be composed using `_.compose`:
 
 ```javascript
 _.compose(Scrubbers.object_keys(['password', 'secret']), Scrubbers.substrings(['12345abcde']))(object)
@@ -84,7 +87,7 @@ Loofah provides a default list of keywords for each of its functions (except sub
 Scrubbers.object_keys()(object)
 ```
 
-You can also call all of the library functions (except substrings) with their defaults by calling:
+You can also call all of the library functions (except substrings) with their defaults using:
 
 ```javascript
 Scrubbers.default()(object)
