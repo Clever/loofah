@@ -1,3 +1,2 @@
-require('coffee-script');
-var path = __dirname + '/lib/loofah';
+var path = __dirname + '/lib-js/loofah';
 module.exports = require(path);
