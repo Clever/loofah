@@ -1,0 +1,35 @@
+{
+  "name": "loofah",
+  "version": "0.0.1",
+  "description": "Scrubs sensitive information from data",
+  "engines": {
+    "node": ">=0.10.x"
+  },
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "make -Br test",
+    "prepublish": "make build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/Clever/loofah.git"
+  },
+  "keywords": [
+    "scrub"
+  ],
+  "license": "BSD",
+  "bugs": {
+    "url": "https://github.com/Clever/loofah/issues"
+  },
+  "dependencies": {
+    "underscore": "~1.5.2",
+    "underscore.deep": "~0.3.0"
+  },
+  "devDependencies": {
+    "mocha": "~1.14.0",
+    "coffee-script": "~1.6.3"
+  }
+}
