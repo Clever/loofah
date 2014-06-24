@@ -11,10 +11,13 @@ build: $(LIBS)
 lib-js/%.js : lib/%.coffee
 	node_modules/coffee-script/bin/coffee --bare -c -o $(@D) $(patsubst lib-js/%,lib/%,$(patsubst %.js,%.coffee,$@))
 
-test: $(TESTS)
+test: $(TESTS) lint
 
 $(TESTS): build
 	NODE_ENV=test node_modules/mocha/bin/mocha -R spec --timeout 60000 --compilers coffee:coffee-script test/$@.coffee
+
+lint:
+	./node_modules/.bin/lint
 
 publish: clean build
 	$(eval VERSION := $(shell grep version package.json | sed -ne 's/^[ ]*"version":[ ]*"\([0-9\.]*\)",/\1/p';))
