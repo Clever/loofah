@@ -89,6 +89,22 @@ describe 'Loofah', ->
       assert.equal (Scrubbers.key_value_pairs(['username'], ['_']) 'username_NAME'), 'username_[REDACTED]'
 
 
+  describe 'error objects', ->
+    _.each ['stack', 'message', 'new_field'], (field) ->
+      it "correctly scrubs the #{field} in error objects", ->
+        err = new Error 'test error'
+        err[field] = "email 123454@example.com failed"
+        output = (Scrubbers.key_value_pairs(['email']) err)
+        assert.equal output[field], "email [REDACTED] failed"
+        assert output instanceof Error
+
+    _.each [
+      [{a: new Error('email 12345@example.com failed')}, {a: new Error('email [REDACTED] failed]')}]
+      [['email xyz', new Error('email 12345@example.com failed')], ['email [REDACTED]', new Error('email [REDACTED] failed]')]]
+    ], ([input, output]) ->
+      it 'correctly deals with error objects embedded in other objects', ->
+        assert.deepEqual (Scrubbers.key_value_pairs(['email']) input), output
+
   describe 'composition and extension', ->
     _.each [
       [{user:'name'}, {user:'[REDACTED]'}]
