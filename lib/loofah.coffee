@@ -25,6 +25,12 @@ deep_map_strings = (val, fn) ->
   deep_map_objects_and_arrays val, (subval, subkey) ->
     if _.isString subval then fn subval, subkey else subval
 
+clone_error = (error) ->
+  new_error = Object.create Object.getPrototypeOf error
+  props = Object.getOwnPropertyNames error
+  Object.defineProperties new_error, _.object props,
+    _.map props, (prop) -> Object.getOwnPropertyDescriptor error, prop
+
 deep_map_objects_and_arrays = (val, fn) ->
   key_helper = (val, fn, key) ->
     switch
@@ -33,8 +39,8 @@ deep_map_objects_and_arrays = (val, fn) ->
           key_helper subval, fn, if key then "#{key}.#{subkey}" else subkey
       when _.isArray val then _.map val, (subval) -> key_helper subval, fn, key
       when val instanceof Error
-        nv = new Error val.message
-        _.extend nv, key_helper _.pick(val, Object.getOwnPropertyNames val), fn, key
+        props_to_scrub = _.keys(val).concat ['message', 'stack']
+        _.extend clone_error(val), key_helper _.pick(val, props_to_scrub), fn, key
       else fn val, key
   key_helper val, fn, ''
 
