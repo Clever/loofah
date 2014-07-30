@@ -90,20 +90,36 @@ describe 'Loofah', ->
 
 
   describe 'error objects', ->
-    _.each ['stack', 'message', 'new_field'], (field) ->
-      it "correctly scrubs the #{field} in error objects", ->
-        err = new Error 'test error'
-        err[field] = "email 123454@example.com failed"
-        output = (Scrubbers.key_value_pairs(['email']) err)
-        assert.equal output[field], "email [REDACTED] failed"
-        assert output instanceof Error
+    class CustomError extends Error
+      constructor: (@message, @custom = 'nada') ->
+
+    class StackError extends Error
+      constructor: (@message) -> Error.captureStackTrace @, arguments.callee
+
+    _.each [Error, CustomError, StackError], (ErrorClass) ->
+      _.each ['message', 'new_field'], (field) ->
+        it "correctly scrubs the #{field} in instances of #{ErrorClass.name}", ->
+          err = new ErrorClass 'test error'
+          orig_val = 'email 123454@example.com failed'
+          err[field] = orig_val
+          output = (Scrubbers.key_value_pairs(['email']) err)
+          assert.equal output[field], 'email [REDACTED] failed'
+          assert.equal err[field], orig_val
+          assert.notEqual output, err # Expect a copy, not the original object itself
+          assert.deepEqual _.omit(output, field), _.omit(err, field)
+          assert.equal output.stack, Scrubbers.key_value_pairs(['email']) output.stack
+          assert output instanceof Error
+          assert output instanceof ErrorClass
 
     _.each [
-      [{a: new Error('email 12345@example.com failed')}, {a: new Error('email [REDACTED] failed]')}]
-      [['email xyz', new Error('email 12345@example.com failed')], ['email [REDACTED]', new Error('email [REDACTED] failed]')]]
-    ], ([input, output]) ->
+      input: {a: new Error('email 12345@example.com failed')}
+      expected: {a: new Error('email [REDACTED] failed')}
+    ,
+      input: ['email xyz', new Error('email 12345@example.com failed')]
+      expected: ['email [REDACTED]', new Error('email [REDACTED] failed')]
+    ], ({input, expected}) ->
       it 'correctly deals with error objects embedded in other objects', ->
-        assert.deepEqual (Scrubbers.key_value_pairs(['email']) input), output
+        assert.deepEqual (Scrubbers.key_value_pairs(['email']) input), expected
 
   describe 'composition and extension', ->
     _.each [
