@@ -1,6 +1,6 @@
 {
   "name": "loofah",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Scrubs sensitive information from data",
   "engines": {
     "node": ">=0.10.x"
