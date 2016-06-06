@@ -26,7 +26,7 @@
   },
   "dependencies": {
     "underscore": "~1.5.2",
-    "underscore.deep": "~0.3.0"
+    "underscore.deep": "^0.5.1"
   },
   "devDependencies": {
     "mocha": "~1.14.0",
