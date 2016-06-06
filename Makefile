@@ -6,7 +6,7 @@
 TESTS=$(shell cd test && ls *.coffee | sed s/\.coffee$$//)
 LIBS=$(shell find . -regex "^./lib\/.*\.coffee\$$" | sed s/\.coffee$$/\.js/ | sed s/lib/lib-js/)
 
-build: $(LIBS)
+build: clean $(LIBS)
 
 lib-js/%.js : lib/%.coffee
 	node_modules/coffee-script/bin/coffee --bare -c -o $(@D) $(patsubst lib-js/%,lib/%,$(patsubst %.js,%.coffee,$@))
