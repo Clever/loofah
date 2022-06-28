@@ -9,12 +9,12 @@ LIBS=$(shell find . -regex "^./lib\/.*\.coffee\$$" | sed s/\.coffee$$/\.js/ | se
 build: clean $(LIBS)
 
 lib-js/%.js : lib/%.coffee
-	node_modules/coffee-script/bin/coffee --bare -c -o $(@D) $(patsubst lib-js/%,lib/%,$(patsubst %.js,%.coffee,$@))
+	node_modules/.bin/coffee --bare -c -o $(@D) $(patsubst lib-js/%,lib/%,$(patsubst %.js,%.coffee,$@))
 
 test: $(TESTS)
 
 $(TESTS): build
-	NODE_ENV=test node_modules/mocha/bin/mocha -R spec --timeout 60000 --compilers coffee:coffee-script test/$@.coffee
+	node_modules/.bin/mocha -R spec --timeout 60000 --require coffeescript/register test/$@.coffee
 
 publish: clean build
 	$(eval VERSION := $(shell grep version package.json | sed -ne 's/^[ ]*"version":[ ]*"\([0-9\.]*\)",/\1/p';))
