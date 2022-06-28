@@ -25,11 +25,11 @@
     "url": "https://github.com/Clever/loofah/issues"
   },
   "dependencies": {
-    "underscore": "~1.5.2",
-    "underscore.deep": "^0.5.1"
+    "underscore": "^1.13.4",
+    "underscore.deep": "^0.5.3"
   },
   "devDependencies": {
-    "mocha": "~1.14.0",
-    "coffee-script": "~1.6.3"
+    "mocha": "^10.0.0",
+    "coffeescript": "^1.12.7"
   }
 }
