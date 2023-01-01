@@ -101,3 +101,4 @@ _.compose(Scrubbers.default(), Scrubbers.object_keys(['keys', 'not', 'in', 'defa
 ```
 
 This will call object_keys twice; once with the parameters specified in defaults and once with your parameters. There is no way to remove parameters from the defaults other than editing the code.
+test
