@@ -29,7 +29,7 @@
     "underscore.deep": "^0.5.1"
   },
   "devDependencies": {
-    "mocha": "~1.14.0",
-    "coffee-script": "~1.6.3"
+    "coffee-script": "~1.6.3",
+    "mocha": "^2.5.3"
   }
 }
