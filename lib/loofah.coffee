@@ -26,7 +26,7 @@ deep_map_strings = (val, fn) ->
     if _.isString subval then fn subval, subkey else subval
 
 clone_error = (error) ->
-  new_error = Object.create Object.getPrototypeOf error
+  new_error = new (Object.getPrototypeOf error).constructor
   props = Object.getOwnPropertyNames error
   Object.defineProperties new_error, _.object props,
     _.map props, (prop) -> Object.getOwnPropertyDescriptor error, prop
