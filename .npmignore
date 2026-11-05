@@ -1,6 +1,15 @@
-node_modules
 *~
 .DS_Store
 \#*\#
 .*.swp
 npm-debug.log
+.npmrc_docker
+.npmrc
+.nvmrc
+catalog-info.yaml
+Makefile
+
+.circleci
+.github
+node_modules
+test
